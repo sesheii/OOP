@@ -5,6 +5,40 @@
 #include <iomanip>
 #include <utility>
 
+template <typename T>
+class Node {
+    
+private:
+    T data;
+    Node<T>* next = nullptr;
+    Node<T>* prev = nullptr;
+    
+public:
+    Node(T dat) : data(dat) {}
+};
+
+template <typename T>
+class Iterator {
+    
+private:
+    Node<T>* current;
+    
+public:
+    T& operator++() {
+        current = current->next;
+        return current;
+    }
+};
+
+class DoublyLinkedList {
+    
+};
+
+
+
+
+
+
 class shoppingItem {
 
 private:
