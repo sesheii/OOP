@@ -304,7 +304,7 @@ public:
         file.open(filename, std::ios::out);
         file << '\n';
         file.close();
-//        items.erase()
+        items.erase();
     }
 
 };
@@ -321,6 +321,7 @@ int main() {
                  "2. show\n"
                  "3. erase\n"
                  "4. save (necessary if you want to save a shopping list in a file)\n"
+                 "5. get total\n"
                  "Type in a number of a query you want to execute and hit ENTER\n"
                  "To exit type -1 and hit ENTER\n";
 
@@ -347,6 +348,9 @@ int main() {
 
         } else if (n == 4) {
             list.saveList();
+
+        } else if (n == 5) {
+            std::cout << "Total: " << list.getTotal() << '\n';
 
         } else if (n == -1) {
             isShopping = false;
