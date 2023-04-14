@@ -16,109 +16,190 @@ public:
     Node(T dat) : data(dat) {}
 };
 
+//template <typename T>
+//class DoublyLinkedList {
+//
+//private:
+//    Node<T>* head;
+//    size_t size = 0;
+//
+//public:
+//    DoublyLinkedList() {}
+//
+//    void push_back(T value) {
+//        Node<T>* new_node = new Node<T>(value);
+//        if (head == nullptr) {
+//            head = new_node;
+//        } else {
+//            Node<T>* current = head;
+//            while (current->next != nullptr) {
+//                current = current->next;
+//            }
+//            current->next = new_node;
+//            new_node->prev = current;
+//        }
+//        size++;
+//    }
+//
+//    void erase(size_t l=0, size_t r=0) {
+//        if (l == 0 && r == 0) {
+//            Node<T>* current = head;
+//            while (current != nullptr) {
+//                Node<T>* next_node = current->next;
+//                delete current;
+//                current = next_node;
+//            }
+//            head = nullptr;
+//            size = 0;
+//        } else {
+//            if (l > r) {
+//                std::swap(l, r);
+//            }
+//            Node<T>* current = head;
+//            for (size_t i = 1; i < l && current != nullptr; i++) {
+//                current = current->next;
+//            }
+//            Node<T>* start_node = current;
+//            for (size_t i = l; i <= r && current != nullptr; i++) {
+//                current = current->next;
+//            }
+//            Node<T>* end_node = current;
+//            if (start_node != nullptr) {
+//                start_node->next = end_node;
+//            } else {
+//                head = end_node;
+//            }
+//            if (end_node != nullptr) {
+//                end_node->prev = start_node;
+//            }
+//            current = start_node;
+//            while (current != nullptr) {
+//                Node<T>* next_node = current->next;
+//                delete current;
+//                current = next_node;
+//            }
+//            size -= (r - l + 1);
+//        }
+//    }
+//
+//    class Iterator {
+//
+//    private:
+//        Node<T>* current;
+//
+//    public:
+//        Iterator(Node<T>* start) : current(start) {};
+//
+//        Iterator& operator++() {
+//            current = current->next;
+//            return *this;
+//        }
+//
+//        Iterator& operator--() {
+//            current = current->prev;
+//            return *this;
+//        }
+//
+//        bool operator!=(const Iterator& other) const {
+//            return current != other.current;
+//        }
+//
+//        bool operator==(const Iterator& other) const {
+//            return current == other.current;
+//        }
+//
+//        T& operator*() {
+//            return current->data;
+//        }
+//    };
+//
+//    Iterator begin() const {
+//        return Iterator(head);
+//    }
+//
+//    Iterator end() const {
+//        return Iterator(nullptr);
+//    }
+//};
+
+template <typename T>
+class DoublyLinkedListIterator {
+public:
+    DoublyLinkedListIterator(Node<T>* node) : current(node) {}
+
+    bool operator!=(const DoublyLinkedListIterator& other) const {
+        return current != other.current;
+    }
+
+    T& operator*() const {
+        return current->data;
+    }
+
+    DoublyLinkedListIterator& operator++() {
+        current = current->next;
+        return *this;
+    }
+
+private:
+    Node<T>* current;
+};
+
+
+
 template <typename T>
 class DoublyLinkedList {
 
 private:
     Node<T>* head;
-    size_t size = 0;
+    Node<T>* tail;
+    int size;
 
 public:
-    DoublyLinkedList() {}
+    DoublyLinkedList() : head(nullptr), tail(nullptr), size(0) {}
+
+    DoublyLinkedListIterator<T> begin() const {
+        return DoublyLinkedListIterator<T>(head);
+    }
+
+    DoublyLinkedListIterator<T> end() const {
+        return DoublyLinkedListIterator<T>(nullptr);
+    }
 
     void push_back(T value) {
-        Node<T>* new_node = new Node<T>(value);
-        if (head == nullptr) {
-            head = new_node;
-        } else {
-            Node<T>* current = head;
-            while (current->next != nullptr) {
-                current = current->next;
-            }
-            current->next = new_node;
-            new_node->prev = current;
+        Node<T>* newNode = new Node<T>(value);
+        if (size == 0) {
+            head = tail = newNode;
+        }
+        else {
+            tail->next = newNode;
+            newNode->prev = tail;
+            tail = newNode;
         }
         size++;
     }
 
-    void erase(size_t l=0, size_t r=0) {
-        if (l == 0 && r == 0) {
-            Node<T>* current = head;
-            while (current != nullptr) {
-                Node<T>* next_node = current->next;
-                delete current;
-                current = next_node;
-            }
-            head = nullptr;
-            size = 0;
-        } else {
-            if (l > r) {
-                std::swap(l, r);
-            }
-            Node<T>* current = head;
-            for (size_t i = 1; i < l && current != nullptr; i++) {
-                current = current->next;
-            }
-            Node<T>* start_node = current;
-            for (size_t i = l; i <= r && current != nullptr; i++) {
-                current = current->next;
-            }
-            Node<T>* end_node = current;
-            if (start_node != nullptr) {
-                start_node->next = end_node;
-            } else {
-                head = end_node;
-            }
-            if (end_node != nullptr) {
-                end_node->prev = start_node;
-            }
-            current = start_node;
-            while (current != nullptr) {
-                Node<T>* next_node = current->next;
-                delete current;
-                current = next_node;
-            }
-            size -= (r - l + 1);
+    void erase() {
+        Node<T>* currentNode = head;
+        while (currentNode != nullptr) {
+            Node<T>* nextNode = currentNode->next;
+            delete currentNode;
+            currentNode = nextNode;
         }
+        head = tail = nullptr;
+        size = 0;
     }
 
-    class Iterator {
-
-    private:
-        Node<T>* current;
-
-    public:
-        Iterator(Node<T>* start) : current(start) {};
-
-        Iterator& operator++() {
-            current = current->next;
-            return *this;
-        }
-
-        Iterator& operator--() {
-            current = current->prev;
-            return *this;
-        }
-
-        bool operator!=(const Iterator& other) const {
-            return current != other.current;
-        }
-
-        bool operator==(const Iterator& other) const {
-            return current == other.current;
-        }
-
-        T& operator*() {
-            return current->data;
-        }
-    };
-
-    Iterator begin() const {
-        return Iterator(head);
+    int getSize() const {
+        return size;
     }
 
-    Iterator end() const {
-        return Iterator(nullptr);
+    void printList() const {
+        Node<T>* currentNode = head;
+        while (currentNode != nullptr) {
+            std::cout << currentNode->data << " ";
+            currentNode = currentNode->next;
+        }
+        std::cout << std::endl;
     }
 };
 
