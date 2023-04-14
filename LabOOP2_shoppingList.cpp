@@ -24,18 +24,62 @@ private:
     size_t size = 0;
 
 public:
-    DoublyLinkedList(size_t _size) : size(_size) {
-        //make sure it works fine for size  equal 0, 1
-    }
+    DoublyLinkedList() {}
 
     void push_back(T value) {
-        // write a pushback function
+        Node<T>* new_node = new Node<T>(value);
+        if (head == nullptr) {
+            head = new_node;
+        } else {
+            Node<T>* current = head;
+            while (current->next != nullptr) {
+                current = current->next;
+            }
+            current->next = new_node;
+            new_node->prev = current;
+        }
+        size++;
     }
 
-    void erase() {
-        // erase the whole list if no arguments provided or erases everything (removes and relinks nodes) between element with index l and r
-        // be careful with relinking nodes
-        // no need to do error handling, do this for positive scenario
+    void erase(size_t l=0, size_t r=0) {
+        if (l == 0 && r == 0) {
+            Node<T>* current = head;
+            while (current != nullptr) {
+                Node<T>* next_node = current->next;
+                delete current;
+                current = next_node;
+            }
+            head = nullptr;
+            size = 0;
+        } else {
+            if (l > r) {
+                std::swap(l, r);
+            }
+            Node<T>* current = head;
+            for (size_t i = 1; i < l && current != nullptr; i++) {
+                current = current->next;
+            }
+            Node<T>* start_node = current;
+            for (size_t i = l; i <= r && current != nullptr; i++) {
+                current = current->next;
+            }
+            Node<T>* end_node = current;
+            if (start_node != nullptr) {
+                start_node->next = end_node;
+            } else {
+                head = end_node;
+            }
+            if (end_node != nullptr) {
+                end_node->prev = start_node;
+            }
+            current = start_node;
+            while (current != nullptr) {
+                Node<T>* next_node = current->next;
+                delete current;
+                current = next_node;
+            }
+            size -= (r - l + 1);
+        }
     }
 
     class Iterator {
@@ -69,14 +113,15 @@ public:
         }
     };
 
-    Iterator begin(){
-        //make it work with range based for loop
+    Iterator begin() const {
+        return Iterator(head);
     }
 
-    Iterator end(){
-        //make it work with range based for loop
+    Iterator end() const {
+        return Iterator(nullptr);
     }
 };
+
 
 
 
@@ -129,7 +174,7 @@ public:
 
             while (std::getline(file >> std::ws, label)){
                 file >> price >> amount;
-                items.emplace_back(label, price, amount);
+                items.push_back(shoppingItem(label, price, amount));
 
                 total += price * amount;
             }
@@ -183,13 +228,8 @@ public:
 
 };
 
+
 int main() {
-    DoublyLinkedList<int> list(10);
-    std::cout << "FOO";
-}
-
-
-int foo() {
 
     shoppingList list("goods.txt");
 
