@@ -16,112 +16,6 @@ public:
     Node(T dat) : data(dat) {}
 };
 
-//template <typename T>
-//class DoublyLinkedList {
-//
-//private:
-//    Node<T>* head;
-//    size_t size = 0;
-//
-//public:
-//    DoublyLinkedList() {}
-//
-//    void push_back(T value) {
-//        Node<T>* new_node = new Node<T>(value);
-//        if (head == nullptr) {
-//            head = new_node;
-//        } else {
-//            Node<T>* current = head;
-//            while (current->next != nullptr) {
-//                current = current->next;
-//            }
-//            current->next = new_node;
-//            new_node->prev = current;
-//        }
-//        size++;
-//    }
-//
-//    void erase(size_t l=0, size_t r=0) {
-//        if (l == 0 && r == 0) {
-//            Node<T>* current = head;
-//            while (current != nullptr) {
-//                Node<T>* next_node = current->next;
-//                delete current;
-//                current = next_node;
-//            }
-//            head = nullptr;
-//            size = 0;
-//        } else {
-//            if (l > r) {
-//                std::swap(l, r);
-//            }
-//            Node<T>* current = head;
-//            for (size_t i = 1; i < l && current != nullptr; i++) {
-//                current = current->next;
-//            }
-//            Node<T>* start_node = current;
-//            for (size_t i = l; i <= r && current != nullptr; i++) {
-//                current = current->next;
-//            }
-//            Node<T>* end_node = current;
-//            if (start_node != nullptr) {
-//                start_node->next = end_node;
-//            } else {
-//                head = end_node;
-//            }
-//            if (end_node != nullptr) {
-//                end_node->prev = start_node;
-//            }
-//            current = start_node;
-//            while (current != nullptr) {
-//                Node<T>* next_node = current->next;
-//                delete current;
-//                current = next_node;
-//            }
-//            size -= (r - l + 1);
-//        }
-//    }
-//
-//    class Iterator {
-//
-//    private:
-//        Node<T>* current;
-//
-//    public:
-//        Iterator(Node<T>* start) : current(start) {};
-//
-//        Iterator& operator++() {
-//            current = current->next;
-//            return *this;
-//        }
-//
-//        Iterator& operator--() {
-//            current = current->prev;
-//            return *this;
-//        }
-//
-//        bool operator!=(const Iterator& other) const {
-//            return current != other.current;
-//        }
-//
-//        bool operator==(const Iterator& other) const {
-//            return current == other.current;
-//        }
-//
-//        T& operator*() {
-//            return current->data;
-//        }
-//    };
-//
-//    Iterator begin() const {
-//        return Iterator(head);
-//    }
-//
-//    Iterator end() const {
-//        return Iterator(nullptr);
-//    }
-//};
-
 template <typename T>
 class DoublyLinkedListIterator {
 public:
@@ -189,6 +83,49 @@ public:
         size = 0;
     }
 
+    void erase(int a, int b) {
+        if (a < 0 || b >= size || a > b) {
+            throw std::out_of_range("Invalid range!");
+        }
+        Node<T>* prevNode;
+
+        Node<T>* nodeToDelete = nullptr;
+        if (a == 0) {
+            nodeToDelete = head;
+            head = nodeToDelete->next;
+            if (head) {
+                head->prev = nullptr;
+            }
+        }
+        else {
+            prevNode = head;
+            for (int i = 0; i < a - 1; i++) {
+                prevNode = prevNode->next;
+            }
+            nodeToDelete = prevNode->next;
+            prevNode->next = nodeToDelete->next;
+            if (nodeToDelete->next) {
+                nodeToDelete->next->prev = prevNode;
+            }
+        }
+
+        for (int i = a; i <= b; i++) {
+            Node<T>* nextNode = nodeToDelete->next;
+            delete nodeToDelete;
+            nodeToDelete = nextNode;
+            size--;
+        }
+
+        if (a == 0) {
+            if (size == 0) {
+                tail = nullptr;
+            }
+        }
+        else if (nodeToDelete == nullptr) {
+            tail = prevNode;
+        }
+    }
+
     int getSize() const {
         return size;
     }
@@ -230,6 +167,10 @@ public:
     std::string fancyFormat(){
         return label + " price: " + std::to_string(price) + " quantity: " + std::to_string(amount);
     }
+
+    int getPrice() const {
+        return price;
+    }
 };
 
 class shoppingList {
@@ -263,6 +204,7 @@ public:
             file.close();
 
         } else {
+            total = 0;
             file.open(filename,std::ios::out);
             file.close();
         }
@@ -281,6 +223,7 @@ public:
 
     void appendItem(shoppingItem item) {
         items.push_back(item);
+        total += item.getPrice();
     }
 
     friend std::ostream &operator<<(std::ostream &os, const shoppingList &list) {
@@ -307,6 +250,10 @@ public:
         items.erase();
     }
 
+    void eraseRange(int a, int b) {
+        items.erase(a,b);
+    }
+
 };
 
 
@@ -317,11 +264,12 @@ int main() {
     std::cout << "\nHello, this is an shopping list app.\n"
                  "Here you can add items to your shopping list\n"
                  "There are such queries avalible:\n\n"
-                 "1. append (syntaxis: item_name NEWLINE item_price NEWLINE item_quantity NEWLINE)\n"
+                 "1. append (syntax: item_name NEWLINE item_price NEWLINE item_quantity NEWLINE)\n"
                  "2. show\n"
                  "3. erase\n"
                  "4. save (necessary if you want to save a shopping list in a file)\n"
                  "5. get total\n"
+                 "6. erase range (syntax: lower_index WHITESPACE higher_index)\n"
                  "Type in a number of a query you want to execute and hit ENTER\n"
                  "To exit type -1 and hit ENTER\n";
 
@@ -341,7 +289,7 @@ int main() {
             list.appendItem(shoppingItem(name,price,quantity));
 
         } else if (n == 2) {
-            std::cout << list;
+            std::cout << '\n' << list;
 
         } else if (n == 3) {
             list.eraseList();
@@ -351,6 +299,11 @@ int main() {
 
         } else if (n == 5) {
             std::cout << "Total: " << list.getTotal() << '\n';
+
+        } else if (n == 6) {
+            int a, b;
+            std::cin >> a >> b;
+            list.eraseRange(a,b);
 
         } else if (n == -1) {
             isShopping = false;
