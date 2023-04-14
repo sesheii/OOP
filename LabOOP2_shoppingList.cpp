@@ -85,44 +85,54 @@ public:
 
     void erase(int a, int b) {
         if (a < 0 || b >= size || a > b) {
-            throw std::out_of_range("Invalid range!");
+            std::cout << "ERROR: INVALID RANGE SPECIFIED\n";
+            return;
         }
-        Node<T>* prevNode;
 
-        Node<T>* nodeToDelete = nullptr;
-        if (a == 0) {
-            nodeToDelete = head;
-            head = nodeToDelete->next;
-            if (head) {
-                head->prev = nullptr;
+        int count = 0;
+        Node<T>* current = head;
+        Node<T>* before_a = nullptr;
+        Node<T>* after_b = nullptr;
+
+        while (current != nullptr) {
+            if (count == a - 1) {
+                before_a = current;
             }
+            else if (count == b + 1) {
+                after_b = current;
+                break;
+            }
+            current = current->next;
+            count++;
+        }
+
+        if (before_a == nullptr) {
+            head = after_b;
         }
         else {
-            prevNode = head;
-            for (int i = 0; i < a - 1; i++) {
-                prevNode = prevNode->next;
-            }
-            nodeToDelete = prevNode->next;
-            prevNode->next = nodeToDelete->next;
-            if (nodeToDelete->next) {
-                nodeToDelete->next->prev = prevNode;
+            before_a->next = after_b;
+            if (after_b != nullptr) {
+                after_b->prev = before_a;
             }
         }
 
-        for (int i = a; i <= b; i++) {
-            Node<T>* nextNode = nodeToDelete->next;
-            delete nodeToDelete;
-            nodeToDelete = nextNode;
+        current = (before_a == nullptr) ? head : before_a->next;
+        while (count >= a && count <= b) {
+            Node<T>* nextNode = current->next;
+            delete current;
+            current = nextNode;
+            count++;
             size--;
         }
 
-        if (a == 0) {
-            if (size == 0) {
-                tail = nullptr;
-            }
+        if (after_b == nullptr) {
+            tail = before_a;
         }
-        else if (nodeToDelete == nullptr) {
-            tail = prevNode;
+        else {
+            after_b->prev = before_a;
+            if (before_a != nullptr) {
+                before_a->next = after_b;
+            }
         }
     }
 
@@ -139,9 +149,6 @@ public:
         std::cout << std::endl;
     }
 };
-
-
-
 
 
 class shoppingItem {
