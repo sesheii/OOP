@@ -7,34 +7,76 @@
 
 template <typename T>
 class Node {
-    
-private:
+
+public:
     T data;
     Node<T>* next = nullptr;
     Node<T>* prev = nullptr;
-    
-public:
+
     Node(T dat) : data(dat) {}
 };
 
 template <typename T>
-class Iterator {
-    
+class DoublyLinkedList {
+
 private:
-    Node<T>* current;
-    
+    Node<T>* head;
+    size_t size = 0;
+
 public:
-    T& operator++() {
-        current = current->next;
-        return current;
+    DoublyLinkedList(size_t _size) : size(_size) {
+        //make sure it works fine for size  equal 0, 1
+    }
+
+    void push_back(T value) {
+        // write a pushback function
+    }
+
+    void erase() {
+        // erase the whole list if no arguments provided or erases everything (removes and relinks nodes) between element with index l and r
+        // be careful with relinking nodes
+        // no need to do error handling, do this for positive scenario
+    }
+
+    class Iterator {
+
+    private:
+        Node<T>* current;
+
+    public:
+        Iterator(Node<T>* start) : current(start) {};
+
+        Iterator& operator++() {
+            current = current->next;
+            return *this;
+        }
+
+        Iterator& operator--() {
+            current = current->prev;
+            return *this;
+        }
+
+        bool operator!=(const Iterator& other) const {
+            return current != other.current;
+        }
+
+        bool operator==(const Iterator& other) const {
+            return current == other.current;
+        }
+
+        T& operator*() {
+            return current->data;
+        }
+    };
+
+    Iterator begin(){
+        //make it work with range based for loop
+    }
+
+    Iterator end(){
+        //make it work with range based for loop
     }
 };
-
-class DoublyLinkedList {
-    
-};
-
-
 
 
 
@@ -68,7 +110,7 @@ class shoppingList {
 
 private:
 
-    std::list<shoppingItem> items;
+    DoublyLinkedList<shoppingItem> items;
     std::string filename;
     int total = 0;
 
@@ -140,7 +182,14 @@ public:
     }
 
 };
+
 int main() {
+    DoublyLinkedList<int> list(10);
+    std::cout << "FOO";
+}
+
+
+int foo() {
 
     shoppingList list("goods.txt");
 
